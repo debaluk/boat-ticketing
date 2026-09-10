@@ -175,3 +175,25 @@ Route::middleware(['auth', 'role:superadmin,kasir,agen'])
 			->name('agents.deactivate');
 
     });
+/*
+|--------------------------------------------------------------------------
+| Trip / Jadwal
+|--------------------------------------------------------------------------
+*/
+Route::prefix('trip')->name('trip.')->group(function () {
+    Route::resource('schedules', \App\Http\Controllers\Trip\ScheduleController::class)
+        ->except(['show']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Pooling
+|--------------------------------------------------------------------------
+*/
+Route::prefix('pooling')->name('pooling.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Pooling\PoolingController::class, 'index'])
+        ->name('index');
+
+    Route::post('/assign', [\App\Http\Controllers\Pooling\PoolingController::class, 'assign'])
+        ->name('assign');
+});
