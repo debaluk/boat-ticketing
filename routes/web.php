@@ -6,7 +6,8 @@ use App\Http\Controllers\Master\BoatController;
 use App\Http\Controllers\Master\CustomerController;
 use App\Http\Controllers\Master\AgentController;
 use App\Http\Controllers\Ticketing\TicketingController;
-
+use App\Http\Controllers\Operational\OperationsController;
+use App\Http\Controllers\Pooling\PoolingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,13 +34,9 @@ Route::post('/logout', [LoginController::class, 'logout'])
 */
 
 Route::get('/', function () {
-
-    if (auth()->check()) {
-        return redirect()->route('dashboard');
-    }
-
-    return redirect()->route('login');
-
+    return auth()->check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
 });
 
 
@@ -48,11 +45,14 @@ Route::get('/', function () {
 | Dashboard
 |--------------------------------------------------------------------------
 */
+
 Route::get('/dashboard', function () {
     return view('dashboard.index');
 })
     ->middleware(['auth', 'role:superadmin,kasir,agen'])
     ->name('dashboard');
+
+
 /*
 |--------------------------------------------------------------------------
 | Dermaga
@@ -60,9 +60,7 @@ Route::get('/dashboard', function () {
 */
 
 Route::get('/dermaga/control-center', function () {
-
     return view('dermaga.control-center');
-
 })
     ->middleware(['auth', 'role:superadmin,petugas_dermaga'])
     ->name('dermaga.control-center');
@@ -75,7 +73,6 @@ Route::get('/dermaga/control-center', function () {
 */
 
 Route::get('/offline-status', function () {
-
     return response()->json([
         'local'      => 'ONLINE',
         'cloud_sync' => config('offline.sync_enabled')
@@ -84,23 +81,70 @@ Route::get('/offline-status', function () {
         'device'     => config('offline.device_code'),
         'time'       => now()->toIso8601String(),
     ]);
-
 });
 
-//transaksi
-Route::middleware(['auth', 'role:superadmin,kasir,agen'])->group(function () {
 
+/*
+|--------------------------------------------------------------------------
+| Ticketing
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'role:superadmin,kasir,agen'])->group(function () {
     Route::get('/ticketing', [TicketingController::class, 'index'])
         ->name('ticketing.index');
 
     Route::post('/ticketing', [TicketingController::class, 'store'])
         ->name('ticketing.store');
-
 });
+
 
 /*
 |--------------------------------------------------------------------------
-| MASTER DATA
+| Operasional / Dermaga
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'role:superadmin,kasir,agen,petugas_dermaga'])->group(function () {
+
+    Route::get('/dermaga/checkin', [OperationsController::class, 'checkin'])
+        ->name('dermaga.checkin');
+
+    Route::get('/dermaga/boarding', [OperationsController::class, 'boarding'])
+        ->name('dermaga.boarding');
+
+    Route::get('/dermaga/dispatch', [OperationsController::class, 'dispatch'])
+        ->name('dermaga.dispatch');
+
+    Route::get('/dermaga/manifest', [OperationsController::class, 'manifest'])
+        ->name('dermaga.manifest');
+
+    Route::get('/operasional/pooling', [OperationsController::class, 'pooling'])
+        ->name('operasional.pooling');
+
+    Route::get('/operasional/antrian-boat', [OperationsController::class, 'queue'])
+        ->name('operasional.queue');
+
+    Route::get('/operasional/exception', [OperationsController::class, 'exception'])
+        ->name('operasional.exception');
+
+    Route::post('/operasional/pooling/{queue}/boat', [OperationsController::class, 'assignBoat'])
+        ->name('operasional.pooling.assign-boat');
+
+    Route::post('/operasional/antrian-boat/{queue}/call', [OperationsController::class, 'callQueue'])
+        ->name('operasional.queue.call');
+
+    Route::post('/dermaga/boarding/{queue}/start', [OperationsController::class, 'startBoarding'])
+        ->name('dermaga.boarding.start');
+
+    Route::post('/dermaga/dispatch/{queue}', [OperationsController::class, 'dispatchQueue'])
+        ->name('dermaga.dispatch.queue');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Master Data
 |--------------------------------------------------------------------------
 */
 
@@ -110,9 +154,9 @@ Route::middleware(['auth', 'role:superadmin,kasir,agen'])
     ->group(function () {
 
         /*
-        |--------------------------------------------------------------------------
-        | BOAT
-        |--------------------------------------------------------------------------
+        |------------------------------------------------------------------
+        | Boat
+        |------------------------------------------------------------------
         */
 
         Route::get('/boats', [BoatController::class, 'index'])
@@ -132,9 +176,9 @@ Route::middleware(['auth', 'role:superadmin,kasir,agen'])
 
 
         /*
-        |--------------------------------------------------------------------------
-        | CUSTOMER
-        |--------------------------------------------------------------------------
+        |------------------------------------------------------------------
+        | Customer
+        |------------------------------------------------------------------
         */
 
         Route::get('/customers', [CustomerController::class, 'index'])
@@ -154,46 +198,64 @@ Route::middleware(['auth', 'role:superadmin,kasir,agen'])
 
 
         /*
-        |--------------------------------------------------------------------------
-        | AGENT
-        |--------------------------------------------------------------------------
+        |------------------------------------------------------------------
+        | Agent
+        |------------------------------------------------------------------
         */
 
         Route::get('/agents', [AgentController::class, 'index'])
-			->name('agents.index');
+            ->name('agents.index');
 
-		Route::post('/agents', [AgentController::class, 'store'])
-			->name('agents.store');
+        Route::post('/agents', [AgentController::class, 'store'])
+            ->name('agents.store');
 
-		Route::put('/agents/{agent}', [AgentController::class, 'update'])
-			->name('agents.update');
+        Route::put('/agents/{agent}', [AgentController::class, 'update'])
+            ->name('agents.update');
 
-		Route::patch('/agents/{agent}/activate', [AgentController::class, 'activate'])
-			->name('agents.activate');
+        Route::patch('/agents/{agent}/activate', [AgentController::class, 'activate'])
+            ->name('agents.activate');
 
-		Route::patch('/agents/{agent}/deactivate', [AgentController::class, 'deactivate'])
-			->name('agents.deactivate');
+        Route::patch('/agents/{agent}/deactivate', [AgentController::class, 'deactivate'])
+            ->name('agents.deactivate');
 
+
+        /*
+        |------------------------------------------------------------------
+        | Trip / Jadwal
+        |------------------------------------------------------------------
+        */
+
+        Route::get('/schedules', [OperationsController::class, 'tripSchedule'])
+            ->name('schedules.index');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tarif / Services
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/services', [OperationsController::class, 'tariff'])
+            ->name('services.index');
     });
-/*
-|--------------------------------------------------------------------------
-| Trip / Jadwal
-|--------------------------------------------------------------------------
-*/
-Route::prefix('trip')->name('trip.')->group(function () {
-    Route::resource('schedules', \App\Http\Controllers\Trip\ScheduleController::class)
-        ->except(['show']);
-});
+
 
 /*
 |--------------------------------------------------------------------------
 | Pooling
 |--------------------------------------------------------------------------
+|
+| PoolingController lokal dipertahankan karena merupakan implementasi
+| pooling berbasis Boat yang ada pada commit lokal.
+|
 */
-Route::prefix('pooling')->name('pooling.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\Pooling\PoolingController::class, 'index'])
-        ->name('index');
 
-    Route::post('/assign', [\App\Http\Controllers\Pooling\PoolingController::class, 'assign'])
-        ->name('assign');
-});
+Route::prefix('pooling')
+    ->name('pooling.')
+    ->group(function () {
+
+        Route::get('/', [PoolingController::class, 'index'])
+            ->name('index');
+
+        Route::post('/assign', [PoolingController::class, 'assign'])
+            ->name('assign');
+    });
