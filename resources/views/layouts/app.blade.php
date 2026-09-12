@@ -45,8 +45,13 @@
         </nav>
     </aside>
 
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
     <main class="main">
         <header class="top">
+            <button type="button" class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Buka menu">
+                ☰
+            </button>
             <b>Boat Ticketing</b>
             <span class="online">● LOCAL ONLINE</span>
             <span id="cloud">● CLOUD SYNC</span>
@@ -96,6 +101,16 @@
     </main>
 
     <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.side');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (!sidebar || !overlay) return;
+
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        }
+
         async function status() {
             const element = document.getElementById('cloud');
             try { await fetch('{{ url('/offline-status') }}', {cache:'no-store'}); element.textContent='● CLOUD SYNC'; element.style.color='#19a15f'; }

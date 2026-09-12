@@ -42,8 +42,8 @@ textarea {
     height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
-    background: #082b4c;
-    border-right: 1px solid #123b63;
+    background: #ffffff;
+    border-right: 1px solid #e5eaf0;
     padding: 18px 14px;
     z-index: 1000;
 }
@@ -112,60 +112,23 @@ textarea {
     padding: 8px 10px 18px;
     border-bottom: 1px solid #244361;
     font-weight: 900;
-    color: #ffffff;
-    line-height: 1.2;
 }
 
 .logo small {
     display: block;
     margin-top: 4px;
     color: #39a4ff;
-    font-size: 9px;
-    letter-spacing: .3px;
 }
 
 .navtitle {
-    margin: 20px 10px 8px;
+    margin: 20px 10px 7px;
     color: #9db2c9;
     font-size: 9px;
-    font-weight: 800;
-    letter-spacing: .7px;
 }
 
-.nav {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    margin: 0;
-    padding: 0;
-}
-
-.nav a {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    min-height: 34px;
-    padding: 8px 10px;
-    margin: 0;
-    border-radius: 6px;
-    color: #eef6ff;
-    text-decoration: none;
-    font-size: 11px;
-    line-height: 1.3;
-    white-space: nowrap;
-    transition: background .15s ease, color .15s ease;
-}
-
-.nav a:hover {
-    background: #123b63;
-    color: #ffffff;
-}
-
-.nav a.active {
     background: #0969e8;
-    color: #ffffff;
-    font-weight: 700;
 }
+
 
 /* =========================================================
    TOPBAR
@@ -1388,115 +1351,4 @@ textarea {
         margin-left: 0;
         text-align: left;
     }
-}
-
-/* =========================================================
-   RESPONSIVE SIDEBAR
-========================================================= */
-
-.sidebar-toggle {
-    display: none;
-}
-
-@media (max-width: 768px) {
-    .side {
-        width: 250px;
-        transform: translateX(-100%);
-        transition: transform .2s ease;
-        box-shadow: 4px 0 18px rgba(0, 0, 0, .18);
-    }
-
-    .side.open {
-        transform: translateX(0);
-    }
-
-    .main {
-        margin-left: 0;
-        width: 100%;
-    }
-
-    .top {
-        height: 58px;
-        padding: 0 14px;
-    }
-
-    .sidebar-toggle {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        padding: 0;
-        border: 0;
-        border-radius: 6px;
-        background: #082b4c;
-        color: #fff;
-        font-size: 18px;
-        cursor: pointer;
-    }
-
-    .top b {
-        font-size: 13px;
-    }
-
-    .top .online,
-    .top #cloud {
-        display: none;
-    }
-
-    .wrap {
-        padding: 14px;
-    }
-
-    .sidebar-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, .35);
-        z-index: 999;
-    }
-
-    .sidebar-overlay.show {
-        display: block;
-    }
-}
-
-/* =========================================================
-   SIDEBAR BOTTOM LOGOUT
-========================================================= */
-
-.side {
-    display: flex;
-    flex-direction: column;
-}
-
-.sidebar-bottom {
-    margin-top: auto;
-    padding-top: 14px;
-    border-top: 1px solid #244361;
-}
-
-.sidebar-bottom form {
-    margin: 0;
-}
-
-.sidebar-logout {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    min-height: 36px;
-    padding: 8px 10px;
-    border: 0;
-    border-radius: 6px;
-    background: transparent;
-    color: #eef6ff;
-    font: inherit;
-    font-size: 11px;
-    text-align: left;
-    cursor: pointer;
-}
-
-.sidebar-logout:hover {
-    background: #123b63;
-    color: #ffffff;
 }
